@@ -82,7 +82,7 @@ public class Zip {
      - notes: Supports implicit progress composition
      */
     
-    public class func unzipFile(_ zipFilePath: URL, destination: URL, overwrite: Bool, password: String?, progress: ((_ progress: Double) -> ())? = nil, fileOutputHandler: ((_ unzippedFile: URL) -> Void)? = nil) throws {
+    public class func unzipFile(_ zipFilePath: URL, destination: URL, overwrite: Bool, password: String?, addTopLevelFolder:Bool = true, progress: ((_ progress: Double) -> ())? = nil, fileOutputHandler: ((_ unzippedFile: URL) -> Void)? = nil) throws {
         
         // File manager
         let fileManager = FileManager.default
@@ -139,6 +139,7 @@ public class Zip {
                 throw ZipError.unzipFail
             }
             currentPosition += Double(fileInfo.compressed_size)
+            
             let fileNameSize = Int(fileInfo.size_filename) + 1
             //let fileName = UnsafeMutablePointer<CChar>(allocatingCapacity: fileNameSize)
             let fileName = UnsafeMutablePointer<CChar>.allocate(capacity: fileNameSize)
@@ -162,7 +163,7 @@ public class Zip {
                 pathString = pathString.replacingOccurrences(of: "\\", with: "/")
             }
 
-            let fullPath = destination.appendingPathComponent(pathString).path
+            let fullPath = ((addTopLevelFolder) ? destination.appendingPathComponent(pathString) : destination).path
 
             let creationDate = Date()
             let directoryAttributes = [FileAttributeKey.creationDate.rawValue : creationDate,
